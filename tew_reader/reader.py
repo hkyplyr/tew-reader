@@ -4,6 +4,8 @@ from meza import io
 
 from args import args
 
+args = args.parse_args()
+
 
 class Reader:
     def __init__(self):

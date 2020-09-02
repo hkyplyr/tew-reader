@@ -1,5 +1,8 @@
 from args import args
 
+args = args.parse_args()
+
+
 PERCEPTION_RATINGS = {
     0: 'To Be Decided',
     1: 'Major Star',

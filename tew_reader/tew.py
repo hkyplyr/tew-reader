@@ -9,6 +9,8 @@ from args import args
 from reader import Reader
 from worker import Worker, Skills, Overness
 
+args = args.parse_args()
+
 
 def __intialize_workers(reader):
     workers = {}
