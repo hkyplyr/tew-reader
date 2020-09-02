@@ -1,4 +1,11 @@
-PERCEPTION_RATINGS = {0: 'To Be Decided', 1: 'Major Star', 2: 'Star', 3: 'Well Known', 4: 'Recognisable', 5: 'Unimportant'}
+PERCEPTION_RATINGS = {
+    0: 'To Be Decided',
+    1: 'Major Star',
+    2: 'Star',
+    3: 'Well Known',
+    4: 'Recognisable',
+    5: 'Unimportant'}
+
 
 def get_momentum_text(rating):
     if rating > 500:
@@ -23,7 +30,7 @@ def get_momentum_text(rating):
         return 'Chilly'
     elif rating < 0:
         return 'Cooled'
-    
+
 
 class Worker:
     def __init__(self, row):
@@ -39,7 +46,7 @@ class Worker:
         self.raw_momentum = int(row['ContractMomentum'])
         self.momentum = get_momentum_text(self.raw_momentum)
         self.role = self.__get_role(row)
-    
+
     def get_sort_key(self, sort_key, region='canada'):
         if sort_key == 'perception':
             return self.perception_score
@@ -52,14 +59,18 @@ class Worker:
         except AttributeError:
             return getattr(self.skills, sort_key)
 
+    def set_age(self, age):
+        self.age = age
+
     def set_skills(self, skills):
         self.skills = skills
-    
+
     def set_overness(self, overness):
         self.overness = overness
 
     def get_as_row(self):
-        return [self.worker_id, self.name, self.disposition, self.gender, self.role, self.perception, self.momentum] + self.overness.get_as_row() + self.skills.get_as_row()
+        return [self.worker_id, self.name, self.age, self.disposition, self.gender, self.role, self.perception,
+                self.momentum] + self.overness.get_as_row() + self.skills.get_as_row()
 
     def __get_role(self, row):
         if int(row['Position_Wrestler']):
@@ -81,9 +92,16 @@ class Worker:
         else:
             return 'Unknown'
 
+    @staticmethod
+    def get_header_names():
+        return ['ID', 'Name', 'Age', 'Disposition', 'Gender', 'Role', 'Perception', 'Momentum'] \
+            + Overness.get_header_names() \
+            + Skills.get_header_names()
+
+
 class Skills:
     def __init__(self, row):
-        self.id = row['WorkerUID']
+        self.worker_id = row['WorkerUID']
         self.brawl = round(int(row['Brawl']) / 10)
         self.air = round(int(row['Air']) / 10)
         self.technical = round(int(row['Technical']) / 10)
@@ -112,7 +130,7 @@ class Skills:
         self.colour = round(int(row['Colour']) / 10)
         self.referee = round(int(row['Refereeing']) / 10)
         self.experience = round(int(row['Experience']) / 10)
-    
+
     def get_as_row(self):
         return [self.brawl, self.air, self.technical, self.power,
                 self.athletic, self.stamina, self.psych, self.basics, self.tough,
@@ -120,6 +138,14 @@ class Skills:
                 self.safety, self.looks, self.star, self.consistency, self.act,
                 self.injury, self.puroresu, self.flash, self.hardcore, self.announcing,
                 self.colour, self.referee, self.experience]
+
+    @staticmethod
+    def get_header_names():
+        return ['Brawl', 'Air', 'Technical', 'Power', 'Athletic', 'Stamina', 'Psych', 'Basics', 'Tough',
+                'Sell', 'Charisma', 'Mic', 'Menace', 'Respect', 'Reputation', 'Safety', 'Looks', 'Star',
+                'Consistency', 'Act', 'Injury', 'Puroresu', 'Flash', 'Hardcord', 'Announcing', 'Colour',
+                'Refereeing', 'Experience']
+
 
 class Overness:
     def __init__(self, row):
@@ -136,8 +162,9 @@ class Overness:
         self.tri_state = int(row['Over9'])
         self.puerto_rico = int(row['Over10'])
         self.hawaii = int(row['Over11'])
-        self.usa_total = [self.great_lakes, self.mid_atlantic, self.mid_south, self.mid_west, self.new_england, self.north_west,
-                          self.south_east, self.south_west, self.tri_state, self.puerto_rico, self.hawaii]
+        self.usa_total = [self.great_lakes, self.mid_atlantic, self.mid_south, self.mid_west, self.new_england,
+                          self.north_west, self.south_east, self.south_west, self.tri_state, self.puerto_rico,
+                          self.hawaii]
         self.usa = round(sum(self.usa_total) / len(self.usa_total) / 10)
 
         self.maritimes = int(row['Over12'])
@@ -147,7 +174,7 @@ class Overness:
         self.saskatchewan = int(row['Over16'])
         self.manitoba = int(row['Over17'])
         self.british_columbia = int(row['Over18'])
-        self.canada_total = [self.maritimes, self.quebec, self.ontario, self.alberta, self.saskatchewan, self.manitoba, 
+        self.canada_total = [self.maritimes, self.quebec, self.ontario, self.alberta, self.saskatchewan, self.manitoba,
                              self.british_columbia]
         self.canada = round(sum(self.canada_total) / len(self.canada_total) / 10)
 
@@ -166,7 +193,8 @@ class Overness:
         self.southern_england = int(row['Over28'])
         self.ireland = int(row['Over29'])
         self.wales = int(row['Over30'])
-        self.british_isles_total = [self.midlands, self.northern_england, self.scotland, self.southern_england, self.ireland, self.wales]
+        self.british_isles_total = [self.midlands, self.northern_england, self.scotland, self.southern_england,
+                                    self.ireland, self.wales]
         self.british_isles = round(sum(self.british_isles_total) / len(self.british_isles_total) / 10)
 
         self.tohoku = int(row['Over31'])
@@ -177,9 +205,9 @@ class Overness:
         self.shikoku = int(row['Over36'])
         self.kyushu = int(row['Over37'])
         self.hokkaido = int(row['Over38'])
-        self.japan_total = [self.tohoku, self.kanto, self.chubu, self.kansai, self.chuguko, self.shikoku, self.kyushu, self.hokkaido]
+        self.japan_total = [self.tohoku, self.kanto, self.chubu, self.kansai, self.chuguko, self.shikoku, self.kyushu,
+                            self.hokkaido]
         self.japan = round(sum(self.japan_total) / len(self.japan_total) / 10)
-
 
         self.western_europe = int(row['Over39'])
         self.iberia = int(row['Over40'])
@@ -189,8 +217,8 @@ class Overness:
         self.scandanavia = int(row['Over44'])
         self.eastern_europe = int(row['Over45'])
         self.russia = int(row['Over46'])
-        self.europe_total = [self.western_europe, self.iberia, self.southern, self.southern_europe, self.central_europe, self.scandanavia,
-                             self.eastern_europe, self.russia]
+        self.europe_total = [self.western_europe, self.iberia, self.southern, self.southern_europe, self.central_europe,
+                             self.scandanavia, self.eastern_europe, self.russia]
         self.europe = round(sum(self.europe_total) / len(self.europe_total) / 10)
 
         self.new_south_wales = int(row['Over47'])
@@ -200,8 +228,8 @@ class Overness:
         self.western_australia = int(row['Over51'])
         self.tasmania = int(row['Over52'])
         self.new_zealand = int(row['Over53'])
-        self.oceania_total = [self.new_south_wales, self.queensland, self.south_australia, self.victoria, self.western_australia, self.tasmania,
-                              self.new_zealand]
+        self.oceania_total = [self.new_south_wales, self.queensland, self.south_australia, self.victoria,
+                              self.western_australia, self.tasmania, self.new_zealand]
         self.oceania = round(sum(self.oceania_total) / len(self.oceania_total) / 10)
 
         self.northern_india = int(row['Over54'])
@@ -212,3 +240,7 @@ class Overness:
 
     def get_as_row(self, region='canada'):
         return [getattr(self, region)]
+
+    @staticmethod
+    def get_header_names():
+        return ['Overness']
