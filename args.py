@@ -13,6 +13,8 @@ __parser.add_argument('--sort', '-s', default='overness',
                       help='The value used to sort the workers.')
 __parser.add_argument('--output', '-o', default='table', choices=['csv', 'table'],
                       help='The format that the data should be outputted in.')
+__parser.add_argument('--type', '-t', default='complex', choices=['simple', 'complex'],
+                      help='The values to return in the output; simple has less values returned.')
 __group = __parser.add_mutually_exclusive_group()
 __group.add_argument('--asc', dest='reverse', default=True, action='store_false',
                      help='Sort values in ascending order.')

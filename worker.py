@@ -1,3 +1,5 @@
+from args import args
+
 PERCEPTION_RATINGS = {
     0: 'To Be Decided',
     1: 'Major Star',
@@ -69,7 +71,7 @@ class Worker:
         self.overness = overness
 
     def get_as_row(self):
-        return [self.worker_id, self.name, self.age, self.disposition, self.gender, self.role, self.perception,
+        return [self.name, self.age, self.disposition, self.gender, self.role, self.perception,
                 self.momentum] + self.overness.get_as_row() + self.skills.get_as_row()
 
     def __get_role(self, row):
@@ -94,7 +96,7 @@ class Worker:
 
     @staticmethod
     def get_header_names():
-        return ['ID', 'Name', 'Age', 'Disposition', 'Gender', 'Role', 'Perception', 'Momentum'] \
+        return ['Name', 'Age', 'Disposition', 'Gender', 'Role', 'Perception', 'Momentum'] \
             + Overness.get_header_names() \
             + Skills.get_header_names()
 
@@ -102,49 +104,82 @@ class Worker:
 class Skills:
     def __init__(self, row):
         self.worker_id = row['WorkerUID']
-        self.brawl = round(int(row['Brawl']) / 10)
-        self.air = round(int(row['Air']) / 10)
-        self.technical = round(int(row['Technical']) / 10)
-        self.power = round(int(row['Power']) / 10)
-        self.athletic = round(int(row['Athletic']) / 10)
-        self.stamina = round(int(row['Stamina']) / 10)
-        self.psych = round(int(row['Psych']) / 10)
-        self.basics = round(int(row['Basics']) / 10)
-        self.tough = round(int(row['Tough']) / 10)
-        self.sell = round(int(row['Sell']) / 10)
-        self.charisma = round(int(row['Charisma']) / 10)
-        self.mic = round(int(row['Mic']) / 10)
-        self.menace = round(int(row['Menace']) / 10)
-        self.respect = round(int(row['Respect']) / 10)
-        self.reputation = round(int(row['Reputation']) / 10)
-        self.safety = round(int(row['Safety']) / 10)
-        self.looks = round(int(row['Looks']) / 10)
-        self.star = round(int(row['Star']) / 10)
-        self.consistency = round(int(row['Consistency']) / 10)
-        self.act = round(int(row['Act']) / 10)
-        self.injury = round(int(row['Injury']) / 10)
-        self.puroresu = round(int(row['Puroresu']) / 10)
-        self.flash = round(int(row['Flash']) / 10)
-        self.hardcore = round(int(row['Hardcore']) / 10)
-        self.announcing = round(int(row['Announcing']) / 10)
-        self.colour = round(int(row['Colour']) / 10)
-        self.referee = round(int(row['Refereeing']) / 10)
-        self.experience = round(int(row['Experience']) / 10)
+
+        self.brawl = self.__get_tew_value(row, 'Brawl')
+        self.puroresu = self.__get_tew_value(row, 'Puroresu')
+        self.hardcore = self.__get_tew_value(row, 'Hardcore')
+        self.technical = self.__get_tew_value(row, 'Technical')
+        self.air = self.__get_tew_value(row, 'Air')
+        self.flash = self.__get_tew_value(row, 'Flash')
+        self.primary_total = [self.brawl, self.puroresu, self.hardcore, self.technical, self.air, self.flash]
+        self.primary = round(sum(self.primary_total) / len(self.primary_total))
+
+        self.psych = self.__get_tew_value(row, 'Psych')
+        self.experience = self.__get_tew_value(row, 'Experience')
+        self.respect = self.__get_tew_value(row, 'Respect')
+        self.reputation = self.__get_tew_value(row, 'Reputation')
+        self.mental_total = [self.psych, self.experience, self.respect, self.reputation]
+        self.mental = round(sum(self.mental_total) / len(self.mental_total))
+
+        self.charisma = self.__get_tew_value(row, 'Charisma')
+        self.mic = self.__get_tew_value(row, 'Mic')
+        self.act = self.__get_tew_value(row, 'Act')
+        self.star = self.__get_tew_value(row, 'Star')
+        self.looks = self.__get_tew_value(row, 'Looks')
+        self.menace = self.__get_tew_value(row, 'Menace')
+        self.performance_total = [self.charisma, self.mic, self.act, self.star, self.looks, self.menace]
+        self.performance = round(sum(self.performance_total) / len(self.performance_total))
+
+        self.basics = self.__get_tew_value(row, 'Basics')
+        self.sell = self.__get_tew_value(row, 'Sell')
+        self.consistency = self.__get_tew_value(row, 'Consistency')
+        self.safety = self.__get_tew_value(row, 'Safety')
+        self.fundamental_total = [self.basics, self.sell, self.consistency, self.safety]
+        self.fundamental = round(sum(self.fundamental_total) / len(self.fundamental_total))
+
+        self.stamina = self.__get_tew_value(row, 'Stamina')
+        self.athletic = self.__get_tew_value(row, 'Athletic')
+        self.power = self.__get_tew_value(row, 'Power')
+        self.tough = self.__get_tew_value(row, 'Tough')
+        self.injury = self.__get_tew_value(row, 'Injury')
+        self.pysical_total = [self.stamina, self.athletic, self.power, self.tough, self.injury]
+        self.physical = round(sum(self.pysical_total) / len(self.pysical_total))
+
+        self.announcing = self.__get_tew_value(row, 'Announcing')
+        self.colour = self.__get_tew_value(row, 'Colour')
+        self.referee = self.__get_tew_value(row, 'Refereeing')
+        self.other_total = [self.announcing, self.colour, self.referee]
+        self.other = round(sum(self.other_total) / len(self.other_total))
 
     def get_as_row(self):
-        return [self.brawl, self.air, self.technical, self.power,
-                self.athletic, self.stamina, self.psych, self.basics, self.tough,
-                self.sell, self.charisma, self.mic, self.menace, self.respect, self.reputation,
-                self.safety, self.looks, self.star, self.consistency, self.act,
-                self.injury, self.puroresu, self.flash, self.hardcore, self.announcing,
-                self.colour, self.referee, self.experience]
+        if args.type == 'simple':
+            return [self.primary, self.mental, self.performance, self.fundamental, self.physical, self.other]
+        elif args.type == 'complex':
+            return [self.brawl, self.puroresu, self.hardcore, self.technical, self.air, self.flash,
+                    self.psych, self.experience, self.respect, self.reputation, self.charisma, self.mic,
+                    self.act, self.star, self.looks, self.mental, self.basics, self.sell, self.consistency,
+                    self.safety, self.stamina, self.athletic, self.power, self.tough, self.injury,
+                    self.announcing, self.colour, self.referee]
+
+            return [self.brawl, self.air, self.technical, self.power,
+                    self.athletic, self.stamina, self.psych, self.basics, self.tough,
+                    self.sell, self.charisma, self.mic, self.menace, self.respect, self.reputation,
+                    self.safety, self.looks, self.star, self.consistency, self.act,
+                    self.injury, self.puroresu, self.flash, self.hardcore, self.announcing,
+                    self.colour, self.referee, self.experience]
+
+    def __get_tew_value(self, row, name):
+        return round(int(row[name]) / 10)
 
     @staticmethod
     def get_header_names():
-        return ['Brawl', 'Air', 'Technical', 'Power', 'Athletic', 'Stamina', 'Psych', 'Basics', 'Tough',
-                'Sell', 'Charisma', 'Mic', 'Menace', 'Respect', 'Reputation', 'Safety', 'Looks', 'Star',
-                'Consistency', 'Act', 'Injury', 'Puroresu', 'Flash', 'Hardcord', 'Announcing', 'Colour',
-                'Refereeing', 'Experience']
+        if args.type == 'simple':
+            return ['Primary', 'Mental', 'Performance', 'Fundamental', 'Physical', 'Other']
+        elif args.type == 'complex':
+            return ['Brawl', 'Puroresu', 'Hardcore', 'Technical', 'Aerial', 'Flashiness', 'Psychology', 'Experience',
+                    'Respect', 'Reputation', 'Charisma', 'Microphone', 'Acting', 'Star Quality', 'Sex Appeal', 'Menace',
+                    'Basics', 'Selling', 'Consistency', 'Safety', 'Stamina', 'Athleticism', 'Power', 'Toughness',
+                    'Resilience', 'Announcing', 'Colour', 'Refereeing']
 
 
 class Overness:
